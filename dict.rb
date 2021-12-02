@@ -3,8 +3,7 @@ require 'json'    # для работы с JSON файлами
 class Dictionary  # класс для работы со словарем
   attr_accessor :file_name, :usl, :words
 
-  # инициализация словаря, если параметры не заданы, берутся по умолчанию
-  def initialize(file_name="", usl="", words={})
+  def initialize(file_name, usl, words = {})
     @file_name = file_name
     @usl = usl
     @words = words
@@ -12,43 +11,48 @@ class Dictionary  # класс для работы со словарем
 
   # Информация о словаре название файла, размер, дата
   def Name
-    sname = "========== Dict name '#{@file_name} "
-    if File.exist?(@file_name)
-      sname += "size: #{File.size(@file_name)} date: #{File.mtime(@file_name)} "
+    sname = "========== Dict name '#{file_name} "
+    if File.exist?(file_name)
+      sname += "size: #{File.size(file_name)} date: #{File.mtime(file_name)} "
     end
     sname += "=" * 10
   end
 
   # если файл существует, то чтение из файла JSON и преобразование в хеш, иначе пусто
   def ReadFromFile
-    if File.exist?(@file_name)
+    if File.exist?(file_name)
       @words = JSON.parse(File.read(file_name))
       puts "  Dictionary was readed."
     else
       @words = {}
-      puts "  Dictionary not readed: file #{@file_name} not exists."
+      puts "  Dictionary not readed: file #{file_name} not exists."
     end
   end
 
   # если словарь (хэш) не пустой, записать в файл, преобразовав из хеша в JSON
   def WriteToFile
-    if !@words.empty? && file_name != ""
-      File.open(@file_name,"w") { |f| f.write @words.to_json }
+    if !words.empty? && file_name != ""
+      File.open(file_name,"w") { |f| f.write words.to_json }
       puts "  Dictionary was saved."
     else
       puts "  Empty dictionary or filename. File not saved."
     end
   end
 
-  # Ввод нового слова и если оно удовлетворяет условиям, то добавить в словарь
+  # Ввод нового слова и если оно удовлетворяет условиям,
+  # то проверяется есть ли такое слово в словаре, если есть, то не добавляется
   def Add
     print "  Input word: "
     key = gets.chomp.upcase
     print "  Input translate: "
     value = gets.chomp.upcase
     if key.match(usl)
-      @words[key] = value
-      puts "  Word #{key} was added."
+      if words.include?(key)
+        puts "Already exists #{key} - #{words[key]}! Not added."
+      else
+        @words[key] = value
+        puts "  Word #{key} was added."
+      end
     else
       puts "  Incorrect word"
     end
@@ -56,9 +60,9 @@ class Dictionary  # класс для работы со словарем
 
   # Вывод словаря
   def Print
-    if !@words.empty?
+    if !words.empty?
       n = 0
-      @words.each {|key, val| puts "#{n += 1}).\t#{key}\t-\t#{val}" }
+      words.each {|key, val| puts "#{n += 1}).\t#{key}\t-\t#{val}" }
     else
       puts "  Dictionary is empty."
     end
@@ -68,16 +72,18 @@ class Dictionary  # класс для работы со словарем
   def Find
     print "  Input find word: "
     fkey = gets.chomp.upcase
-    puts @words.has_key?(fkey) ? "#{fkey} - #{@words[fkey]}" : "not founded!"
+    puts words.has_key?(fkey) ? "#{fkey} - #{words[fkey]}" : "not founded!"
   end
 
   # запрос ввода слова, поиск и удаление, если найдено
   def Delete
     print "  Input delete word:"
     fkey = gets.chomp.upcase
-    mes = "Word #{fkey} was deleted."
-    mes = @words.delete(fkey) { |fkey| "not founded!"}
-    puts mes
+    if @words.delete(fkey) != nil
+      puts "#{fkey} was deleted"
+    else
+      puts "Not deleted because not founded!"
+    end
   end
 
 end
@@ -116,7 +122,7 @@ begin
       # начало цикла проверки выбора пункта меню
       begin
         print "1-print dict 2-add word 3-del word 4-find word " +
-                " 5-read dic 6-save dic 7-change dic 0-exit. Input num: "
+              "5-read dic 6-save dic 7-change dic 0-exit. Input num: "
         s = gets.chomp
         s.match(/^[0-7]{1}$/) ? num = s.to_i : num = -1
       end until num != -1   # конец цикла проверки выбора пункта меню

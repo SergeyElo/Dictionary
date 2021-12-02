@@ -3,10 +3,10 @@ require 'json'    # для работы с JSON файлами
 class Dictionary  # класс для работы со словарем
   attr_accessor :file_name, :usl, :words
 
-  def initialize(file_name, usl, words = {})
-    @file_name = file_name
-    @usl = usl
-    @words = words
+  def initialize(args)
+    @file_name = args[:file_name]
+    @usl = args[:usl]
+    @words = args[:words] == nil ? {} : args[:words]
   end
 
   # Информация о словаре название файла, размер, дата
@@ -89,10 +89,10 @@ class Dictionary  # класс для работы со словарем
 end
 
 # Первый словарь в файле dict_a.json, ограничения на слова (ключи) - только 4 латинские буквы
-dic_first = Dictionary.new('dict_a.json', /^[a-zA-Z]{4}$/)
+dic_first = Dictionary.new(:file_name => 'dict_a.json', :usl => /^[a-zA-Z]{4}$/)
 
 # Второй словарь в файле dict_b.json, ограничения на слова (ключи) - только 5 цифр
-dic_second = Dictionary.new('dict_b.json',/^[0-9]{5}$/)
+dic_second = Dictionary.new(:file_name => 'dict_b.json', :usl => /^[0-9]{5}$/)
 
 # текущий словарь пока не выбран
 dic = nil

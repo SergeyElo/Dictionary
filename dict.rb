@@ -96,7 +96,7 @@ def menu
   return n.to_i
 end
 
-dict = Glossary.new(:type => 1, :file_name => 'glossary.json')
+dict = Glossary.new(:type => 1, :file_name => 'dict.json')
 dict.Load
 loop do
   case menu

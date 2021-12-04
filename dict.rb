@@ -41,7 +41,11 @@ class Glossary
 
   def Print(all = false)
     puts "Selected Dictionary N #{self.type}."
-    puts self.words.map { |key, val| puts "#{key}-#{val}" if (!all && key.match(self.condition)) || all }
+    self.words.map { |key, val|
+      if (!all && key.match(self.condition)) || all
+        puts "#{key}-#{val}"
+      end
+    }
   end
 
   def Add
